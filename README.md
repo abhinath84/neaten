@@ -1,9 +1,11 @@
 # Introduction
 
+A resource cleanup application.
+
 ## example
 
 ```sh
-$ cleanup --destination "path" --type "folder" --patterns "dist, node_modules"
+$ cleanup --destination "absolute_or_relative_path" --type "folder_or_file" --patterns "dist, node_modules"
 
-$ cleanup --config "path"
+$ cleanup --config "absolute_or_relative_path"
 ```
