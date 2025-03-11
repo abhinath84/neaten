@@ -1,0 +1,11 @@
+[package]
+name = "cleanup"
+version = "0.1.0"
+authors = ["Abhishek Nath <abhi.nath84@outlook.com"]
+edition = "2024"
+description = "A resource cleanup application"
+license = "MIT"
+repository = "https://github.com/abhinath84/cleanup"
+documentation = "https://docs.rs/cleanup"
+
+[dependencies]

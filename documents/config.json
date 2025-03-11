@@ -1,0 +1,22 @@
+[
+  {
+    "destination": "/Users/abhinath/productive/pool/Project",
+    "type": "folder",
+    "patterns": ["build", "debug", "release"]
+  },
+  {
+    "destination": "/pool/node",
+    "type": "folder",
+    "patterns": ["dist", "node_modules"]
+  },
+  {
+    "destination": "pool/python",
+    "type": "folder",
+    "patterns": ["target", "misc"]
+  },
+  {
+    "destination": "pool/document",
+    "type": "file",
+    "patterns": ["obj", "exe", "dobj"]
+  }
+]
