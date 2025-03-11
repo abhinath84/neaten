@@ -1,6 +1,6 @@
 # Introduction
 
-A resource cleanup application.
+An application to cleanup resources from hard drive.
 
 ## example
 
