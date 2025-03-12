@@ -1,4 +1,6 @@
-#[derive(Debug, PartialEq)]
+use clap::ValueEnum;
+
+#[derive(Debug, PartialEq, Clone, ValueEnum)]
 pub enum Kind {
     Folder,
     File,
