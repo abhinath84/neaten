@@ -1,21 +1,21 @@
 - destination: /Users/abhinath/productive/pool/Project
-  type: folder
+  kind: folder
   patterns:
     - build
     - debug
     - release
 - destination: /pool/node
-  type: folder
+  kind: folder
   patterns:
     - dist
     - node_modules
 - destination: pool/python
-  type: folder
+  kind: folder
   patterns:
     - target
     - misc
 - destination: pool/document
-  type: file
+  kind: file
   patterns:
     - obj
     - exe

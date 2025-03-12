@@ -29,7 +29,7 @@ mod tests {
     #[test]
     fn create_config() {
         let config = Config::new(
-            String::from("/Users/abhinath/productive/pool/Project"),
+            "/Users/abhinath/productive/pool/Project",
             Kind::Folder,
             vec!["build", "debug", "release"],
         );
@@ -37,7 +37,7 @@ mod tests {
         assert_eq!(
             config,
             Config {
-                destination: String::from("/Users/abhinath/productive/pool/Project"),
+                destination: "/Users/abhinath/productive/pool/Project",
                 kind: Kind::Folder,
                 patterns: vec!["build", "debug", "release"]
             }
@@ -48,7 +48,7 @@ mod tests {
     fn check_kind() {
         // Folder
         let folder_config = Config::new(
-            String::from("/Users/abhinath/productive/pool/Project"),
+            "/Users/abhinath/productive/pool/Project",
             Kind::Folder,
             vec!["build", "debug", "release"],
         );
@@ -56,10 +56,39 @@ mod tests {
 
         // Folder
         let file_config = Config::new(
-            String::from("/Users/abhinath/productive/pool/Project"),
+            "/Users/abhinath/productive/pool/Project",
             Kind::File,
             vec!["build", "debug", "release"],
         );
         assert_eq!(file_config.kind, Kind::File);
+    }
+
+    #[test]
+    fn check_lifetime() {
+        let destination = "/pool/node";
+        let patterns = vec!["dist", "node_modules"];
+
+        let config = Config::new(destination, Kind::Folder, patterns);
+        assert_eq!(
+            config,
+            Config {
+                destination: "/pool/node",
+                kind: Kind::Folder,
+                patterns: vec!["dist", "node_modules"]
+            }
+        );
+
+        {
+            let inner_patterns = vec!["dist", "node_modules"];
+            let inner_config = Config::new(destination, Kind::Folder, inner_patterns);
+            assert_eq!(
+                inner_config,
+                Config {
+                    destination: "/pool/node",
+                    kind: Kind::Folder,
+                    patterns: vec!["dist", "node_modules"]
+                }
+            );
+        }
     }
 }
