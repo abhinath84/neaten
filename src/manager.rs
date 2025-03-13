@@ -27,16 +27,37 @@ impl Manager {
             };
             // println!("{:?}", path);
 
+            if !path.exists() {
+                return Err(Engine::command().error(
+                    ErrorKind::MissingRequiredArgument,
+                    "config file doesn't exists!",
+                ));
+            }
+
             // execute cleanup
             self.parse(path)
                 .map_err(|msg| Engine::command().error(ErrorKind::MissingRequiredArgument, msg))?;
-            println!("{:#?}", self);
             Ok(())
         } else {
             let destination = engine.destination.ok_or(Engine::command().error(
                 ErrorKind::MissingRequiredArgument,
                 "Please provide destination!",
             ))?;
+
+            // validate destination path exists or not
+            if !destination.exists() {
+                return Err(
+                    Engine::command().error(ErrorKind::InvalidValue, "config file doesn't exists!")
+                );
+            }
+
+            // make sure destination path is a folder, not file or symlink
+            if !destination.is_dir() {
+                return Err(
+                    Engine::command().error(ErrorKind::InvalidValue, "config file doesn't exists!")
+                );
+            }
+
             let kind = engine.kind.ok_or(
                 Engine::command().error(ErrorKind::MissingRequiredArgument, "Please provide kind!"),
             )?;
@@ -48,7 +69,6 @@ impl Manager {
             // execute cleanup
             self.format(destination, kind, patterns)
                 .map_err(|msg| Engine::command().error(ErrorKind::MissingRequiredArgument, msg))?;
-            println!("{:#?}", self);
             Ok(())
         }
     }
@@ -56,11 +76,7 @@ impl Manager {
     pub fn execute(&self) -> Result<(), String> {
         // loop over each config
         for config in &self.configs {
-            Self::remove(
-                config.destination.clone(),
-                config.kind.clone(),
-                config.patterns.clone(),
-            );
+            Self::remove(&config.destination, &config.kind, &config.patterns);
         }
         Ok(())
     }
@@ -89,13 +105,73 @@ impl Manager {
         Ok(self.add(Config::new(destination, kind, patterns)))
     }
 
-    fn remove(destination: PathBuf, kind: Kind, patterns: Vec<String>) {
-        // get child item of kind
-        // iterate over each child
-        // check child is matching with patterns or not
-        // if match, then remove
-        // if not, then call remove() with child
-        unimplemented!()
+    fn remove(destination: &PathBuf, kind: &Kind, patterns: &Vec<String>) {
+        if destination.exists() {
+            // get child item of kind
+            let children = Self::childern(destination);
+
+            // iterate over each child
+            for child in &children {
+                // println!("Checking {:?}...", child);
+
+                // if match, then remove
+                match Self::pattern_check(child, patterns, kind) {
+                    Some(_) => {
+                        // remove child
+                        println!("Removing {:?}...", child);
+                    }
+                    None => {
+                        if child.is_dir() {
+                            Self::remove(child, kind, patterns);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn childern(parent: &PathBuf) -> Vec<PathBuf> {
+        let mut children = Vec::new();
+
+        match fs::read_dir(parent) {
+            Ok(entries) => {
+                for entry in entries {
+                    match entry {
+                        Ok(entry) => {
+                            children.push(entry.path());
+
+                            // check child is matching with patterns or not
+                            // if *kind == Kind::Folder && entry.file_type().unwrap().is_dir() {
+                            //     children.push(entry.path());
+                            // } else if *kind == Kind::File && entry.file_type().unwrap().is_file() {
+                            //     children.push(entry.path());
+                            // }
+                        }
+                        Err(e) => {
+                            eprintln!("Error reading directory entry: {}", e);
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("Error reading directory: {}", e);
+            }
+        }
+
+        children
+    }
+
+    fn pattern_check(path: &PathBuf, patterns: &Vec<String>, kind: &Kind) -> Option<usize> {
+        // check for folder
+        if *kind == Kind::Folder && path.is_dir() {
+            let name = path.file_name().unwrap().to_str().unwrap();
+            patterns.iter().position(|n| n == name)
+        } else if *kind == Kind::File && path.is_file() {
+            let extn = path.extension().unwrap().to_str().unwrap();
+            patterns.iter().position(|n| n == extn)
+        } else {
+            None
+        }
     }
 }
 

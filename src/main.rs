@@ -2,8 +2,6 @@ use clap::Parser;
 use cleanup::{Engine, Manager};
 
 fn main() {
-    println!("In-progress!");
-
     // setup command using clap
     let engine = Engine::parse();
 
