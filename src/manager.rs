@@ -1,39 +1,100 @@
-use crate::{Config, Kind};
-// use std::error::Error;
+use crate::{Config, Engine, Kind};
+use clap::{CommandFactory, Error, error::ErrorKind};
+use serde::Deserialize;
+use std::{
+    fs,
+    path::{self, PathBuf},
+};
 
-#[derive(Debug, PartialEq)]
-pub struct Manager<'a> {
-    configs: Vec<Config<'a>>,
+#[derive(Deserialize, Debug, PartialEq)]
+pub struct Manager {
+    configs: Vec<Config>,
 }
 
-impl<'a> Manager<'a> {
-    pub fn new() -> Manager<'a> {
+impl Manager {
+    pub fn new() -> Manager {
         Manager { configs: vec![] }
     }
 
-    fn add(&mut self, config: Config<'a>) {
+    pub fn validate(&mut self, engine: Engine) -> Result<(), Error> {
+        // config
+        if let Some(mut path) = engine.config {
+            // check relative or absolute path
+            path = if path.is_relative() {
+                path::absolute(path).unwrap()
+            } else {
+                path
+            };
+            // println!("{:?}", path);
+
+            // execute cleanup
+            self.parse(path)
+                .map_err(|msg| Engine::command().error(ErrorKind::MissingRequiredArgument, msg))?;
+            println!("{:#?}", self);
+            Ok(())
+        } else {
+            let destination = engine.destination.ok_or(Engine::command().error(
+                ErrorKind::MissingRequiredArgument,
+                "Please provide destination!",
+            ))?;
+            let kind = engine.kind.ok_or(
+                Engine::command().error(ErrorKind::MissingRequiredArgument, "Please provide kind!"),
+            )?;
+            let patterns = engine.patterns.ok_or(Engine::command().error(
+                ErrorKind::MissingRequiredArgument,
+                "Please provide patterns!",
+            ))?;
+
+            // execute cleanup
+            self.format(destination, kind, patterns)
+                .map_err(|msg| Engine::command().error(ErrorKind::MissingRequiredArgument, msg))?;
+            println!("{:#?}", self);
+            Ok(())
+        }
+    }
+
+    pub fn execute(&self) -> Result<(), String> {
+        // loop over each config
+        for config in &self.configs {
+            Self::remove(
+                config.destination.clone(),
+                config.kind.clone(),
+                config.patterns.clone(),
+            );
+        }
+        Ok(())
+    }
+
+    fn add(&mut self, config: Config) {
         self.configs.push(config);
     }
 
-    pub fn parse(&self, path: &str) -> Result<(), String> {
+    fn parse(&mut self, path: PathBuf) -> Result<(), String> {
         // validate the path
         // if relative path then convert to absolute path
         // serialize json file
         // iterate over serialized data and add configs to manager
-        unimplemented!()
+
+        let json_data = fs::read_to_string(path).map_err(|err| err.to_string())?;
+        self.configs = serde_json::from_str(&json_data).map_err(|err| err.to_string())?;
+        Ok(())
     }
 
-    pub fn format(
+    fn format(
         &mut self,
-        destination: &'a str,
+        destination: PathBuf,
         kind: Kind,
-        patterns: Vec<&'a str>,
+        patterns: Vec<String>,
     ) -> Result<(), String> {
         Ok(self.add(Config::new(destination, kind, patterns)))
     }
 
-    pub fn execute(&self) -> Result<(), String> {
-        // Ok(())
+    fn remove(destination: PathBuf, kind: Kind, patterns: Vec<String>) {
+        // get child item of kind
+        // iterate over each child
+        // check child is matching with patterns or not
+        // if match, then remove
+        // if not, then call remove() with child
         unimplemented!()
     }
 }
@@ -52,17 +113,25 @@ mod tests {
     fn add_config() {
         let mut manager = Manager::new();
         manager.add(Config::new(
-            "/Users/abhinath/productive/pool/Project",
+            PathBuf::from("/Users/abhinath/productive/pool/Project"),
             Kind::Folder,
-            vec!["build", "debug", "release"],
+            vec![
+                String::from("build"),
+                String::from("debug"),
+                String::from("release"),
+            ],
         ));
         assert_eq!(
             manager,
             Manager {
                 configs: vec![Config {
-                    destination: "/Users/abhinath/productive/pool/Project",
+                    destination: PathBuf::from("/Users/abhinath/productive/pool/Project"),
                     kind: Kind::Folder,
-                    patterns: vec!["build", "debug", "release"]
+                    patterns: vec![
+                        String::from("build"),
+                        String::from("debug"),
+                        String::from("release"),
+                    ]
                 }]
             }
         );
@@ -73,9 +142,13 @@ mod tests {
         let mut manager = Manager::new();
         manager
             .format(
-                "/Users/abhinath/productive/pool/Project",
+                PathBuf::from("/Users/abhinath/productive/pool/Project"),
                 Kind::Folder,
-                vec!["build", "debug", "release"],
+                vec![
+                    String::from("build"),
+                    String::from("debug"),
+                    String::from("release"),
+                ],
             )
             .unwrap();
 
@@ -83,9 +156,13 @@ mod tests {
             manager,
             Manager {
                 configs: vec![Config {
-                    destination: "/Users/abhinath/productive/pool/Project",
+                    destination: PathBuf::from("/Users/abhinath/productive/pool/Project"),
                     kind: Kind::Folder,
-                    patterns: vec!["build", "debug", "release"]
+                    patterns: vec![
+                        String::from("build"),
+                        String::from("debug"),
+                        String::from("release"),
+                    ]
                 }]
             }
         );

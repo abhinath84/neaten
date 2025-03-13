@@ -1,24 +1,15 @@
 use clap::Parser;
-use cleanup::Engine;
+use cleanup::{Engine, Manager};
 
-fn main() -> Result<(), String> {
+fn main() {
     println!("In-progress!");
 
     // setup command using clap
-    // initiate manager
-    // execute manager
-
-    // TODO: check for the lifetime!!!
-
     let engine = Engine::parse();
-    dbg!(&engine);
 
-    engine.execute()
-
-    // if engine.config.is_some() {
-    //     let value = engine.config.unwrap();
-    //     println!("Value: {:?}", value);
-    // } else {
-    //     println!("No value");
-    // }
+    let mut manager = Manager::new();
+    // validate user input
+    manager.validate(engine).unwrap_or_else(|err| err.exit());
+    // execute
+    manager.execute().unwrap(); //.unwrap_or_else(|err| err.exit());
 }
