@@ -25,12 +25,26 @@ impl Manager {
             } else {
                 path
             };
-            // println!("{:?}", path);
 
+            // config file exists or not
             if !path.exists() {
                 return Err(Engine::command().error(
                     ErrorKind::MissingRequiredArgument,
                     "config file doesn't exists!",
+                ));
+            }
+
+            // config file is a json file or not?
+            let extn = path
+                .extension()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or_default()
+                .to_lowercase();
+            if extn != "json" {
+                return Err(Engine::command().error(
+                    ErrorKind::MissingRequiredArgument,
+                    "config file is not a JSON file, please provide a JSON file",
                 ));
             }
 
@@ -119,6 +133,9 @@ impl Manager {
                     Some(_) => {
                         // remove child
                         println!("Removing {:?}...", child);
+
+                        // TODO: handle error by logging it on console/log file
+                        Self::remove_item(child).unwrap();
                     }
                     None => {
                         if child.is_dir() {
@@ -127,6 +144,14 @@ impl Manager {
                     }
                 }
             }
+        }
+    }
+
+    fn remove_item(path: &PathBuf) -> std::io::Result<()> {
+        if path.is_file() {
+            fs::remove_file(&path)
+        } else {
+            fs::remove_dir_all(&path)
         }
     }
 
