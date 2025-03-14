@@ -90,7 +90,7 @@ impl Manager {
     pub fn execute(&self) -> Result<(), String> {
         // loop over each config
         for config in &self.configs {
-            Self::remove(&config.destination, &config.kind, &config.patterns);
+            helper::remove(&config.destination, &config.kind, &config.patterns);
         }
         Ok(())
     }
@@ -118,28 +118,32 @@ impl Manager {
     ) -> Result<(), String> {
         Ok(self.add(Config::new(destination, kind, patterns)))
     }
+}
 
-    fn remove(destination: &PathBuf, kind: &Kind, patterns: &Vec<String>) {
+mod helper {
+    use super::*;
+
+    pub fn remove(destination: &PathBuf, kind: &Kind, patterns: &Vec<String>) {
         if destination.exists() {
             // get child item of kind
-            let children = Self::childern(destination);
+            let children = self::childern(destination);
 
             // iterate over each child
             for child in &children {
                 // println!("Checking {:?}...", child);
 
                 // if match, then remove
-                match Self::pattern_check(child, patterns, kind) {
+                match self::pattern_check(child, patterns, kind) {
                     Some(_) => {
                         // remove child
                         println!("Removing {:?}...", child);
 
                         // TODO: handle error by logging it on console/log file
-                        Self::remove_item(child).unwrap();
+                        // self::remove_item(child).unwrap();
                     }
                     None => {
                         if child.is_dir() {
-                            Self::remove(child, kind, patterns);
+                            self::remove(child, kind, patterns);
                         }
                     }
                 }
@@ -147,15 +151,7 @@ impl Manager {
         }
     }
 
-    fn remove_item(path: &PathBuf) -> std::io::Result<()> {
-        if path.is_file() {
-            fs::remove_file(&path)
-        } else {
-            fs::remove_dir_all(&path)
-        }
-    }
-
-    fn childern(parent: &PathBuf) -> Vec<PathBuf> {
+    pub fn childern(parent: &PathBuf) -> Vec<PathBuf> {
         let mut children = Vec::new();
 
         match fs::read_dir(parent) {
@@ -186,7 +182,7 @@ impl Manager {
         children
     }
 
-    fn pattern_check(path: &PathBuf, patterns: &Vec<String>, kind: &Kind) -> Option<usize> {
+    pub fn pattern_check(path: &PathBuf, patterns: &Vec<String>, kind: &Kind) -> Option<usize> {
         // check for folder
         if *kind == Kind::Folder && path.is_dir() {
             let name = path.file_name().unwrap().to_str().unwrap();
@@ -196,6 +192,14 @@ impl Manager {
             patterns.iter().position(|n| n == extn)
         } else {
             None
+        }
+    }
+
+    pub fn remove_item(path: &PathBuf) -> std::io::Result<()> {
+        if path.is_file() {
+            fs::remove_file(&path)
+        } else {
+            fs::remove_dir_all(&path)
         }
     }
 }

@@ -1,13 +1,18 @@
 [
   {
-    "destination": "/Users/abhinath/productive/pool/Project",
+    "destination": "/Users/abhinath/productive/pool/C#",
     "kind": "folder",
-    "patterns": ["build", "debug", "release"]
+    "patterns": ["packages", "bin", "obj", "Debug", "Release"]
   },
   {
-    "destination": "/pool/node",
+    "destination": "/Users/abhinath/productive/pool/C++",
     "kind": "folder",
-    "patterns": ["dist", "node_modules"]
+    "patterns": ["build", "Debug", "Release"]
+  },
+  {
+    "destination": "/Users/abhinath/productive/pool/C++_CLI",
+    "kind": "folder",
+    "patterns": ["bin", "obj", "Debug", "Release"]
   },
   {
     "destination": "pool/python",
