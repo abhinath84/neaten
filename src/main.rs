@@ -6,6 +6,7 @@ fn main() {
     let engine = Engine::parse();
 
     let mut manager = Manager::new();
+    manager.check_error().unwrap_or_else(|err| err.exit());
     // validate user input
     manager.validate(engine).unwrap_or_else(|err| err.exit());
     // execute

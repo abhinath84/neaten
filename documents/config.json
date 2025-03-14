@@ -15,13 +15,28 @@
     "patterns": ["bin", "obj", "Debug", "Release"]
   },
   {
-    "destination": "pool/python",
+    "destination": "/Users/abhinath/productive/pool/cloud",
     "kind": "folder",
-    "patterns": ["target", "misc"]
+    "patterns": ["dist", "node_modules"]
   },
   {
-    "destination": "pool/document",
-    "kind": "file",
-    "patterns": ["obj", "exe", "dobj"]
+    "destination": "/Users/abhinath/productive/pool/Design Patterns",
+    "kind": "folder",
+    "patterns": ["build"]
+  },
+  {
+    "destination": "/Users/abhinath/productive/pool/Java",
+    "kind": "folder",
+    "patterns": ["build", "bin"]
+  },
+  {
+    "destination": "/Users/abhinath/productive/pool/rust",
+    "kind": "folder",
+    "patterns": ["target"]
+  },
+  {
+    "destination": "/Users/abhinath/productive/pool/webassembly",
+    "kind": "folder",
+    "patterns": ["build"]
   }
 ]

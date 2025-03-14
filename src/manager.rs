@@ -1,4 +1,7 @@
-use crate::{Config, Engine, Kind};
+use crate::{
+    Config, Engine, Kind,
+    error::{Error as SelfError, ErrorKind as SelfErrorKind},
+};
 use clap::{CommandFactory, Error, error::ErrorKind};
 use serde::Deserialize;
 use std::{
@@ -14,6 +17,13 @@ pub struct Manager {
 impl Manager {
     pub fn new() -> Manager {
         Manager { configs: vec![] }
+    }
+
+    pub fn check_error(&self) -> Result<(), SelfError> {
+        Err(SelfError::new(
+            SelfErrorKind::Validation,
+            String::from("Invalid argument!!!"),
+        ))
     }
 
     pub fn validate(&mut self, engine: Engine) -> Result<(), Error> {
