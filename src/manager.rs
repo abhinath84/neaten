@@ -19,9 +19,9 @@ impl Manager {
         Manager { configs: vec![] }
     }
 
-    pub fn check_error(&self) -> Result<(), SelfError> {
+    pub fn check_error(&self) -> crate::Result<()> {
         Err(SelfError::new(
-            SelfErrorKind::Validation,
+            SelfErrorKind::Usage,
             String::from("Invalid argument!!!"),
         ))
     }
