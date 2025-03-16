@@ -27,6 +27,12 @@ impl Config {
     }
 }
 
+impl AsRef<Config> for Config {
+    fn as_ref(&self) -> &Config {
+        self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

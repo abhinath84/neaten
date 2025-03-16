@@ -1,5 +1,4 @@
 mod config;
-mod custom_error;
 mod engine;
 mod error;
 mod manager;

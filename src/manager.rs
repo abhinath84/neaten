@@ -5,7 +5,7 @@ use crate::{
 use serde::Deserialize;
 use std::{
     fs,
-    path::{self, PathBuf},
+    path::{self, Path, PathBuf},
 };
 
 #[derive(Deserialize, Debug, PartialEq)]
@@ -125,7 +125,14 @@ impl Manager {
         kind: Kind,
         patterns: Vec<String>,
     ) -> crate::Result<()> {
-        Ok(self.add(Config::new(destination, kind, patterns)))
+        self.add(Config::new(destination, kind, patterns));
+        Ok(())
+    }
+}
+
+impl Default for Manager {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -133,15 +140,15 @@ mod helper {
     use super::*;
 
     // TODO: think remove need to return Result<...>?
-    pub fn remove(destination: &PathBuf, kind: &Kind, patterns: &Vec<String>, dryrun: bool) {
+    pub fn remove<P: AsRef<Path>>(destination: P, kind: &Kind, patterns: &[String], dryrun: bool) {
+        // pub fn remove(destination: &Path, kind: &Kind, patterns: &[String], dryrun: bool) {
+        let destination = destination.as_ref();
         if destination.exists() {
             // get child item of kind
             let children = self::childern(destination);
 
             // iterate over each child
             for child in &children {
-                // println!("Checking {:?}...", child);
-
                 // if match, then remove
                 match self::pattern_check(child, patterns, kind) {
                     Some(_) => {
@@ -150,7 +157,7 @@ mod helper {
                         if !dryrun {
                             match self::remove_item(child) {
                                 Ok(_) => println!("Removed {:?}...", child),
-                                Err(e) => eprintln!("Error: {}", e.to_string()),
+                                Err(e) => eprintln!("Error: {}", e),
                             }
                         }
                     }
@@ -165,7 +172,7 @@ mod helper {
     }
 
     // TODO: return Result<Vec<PathBuf>, AppError>
-    pub fn childern(parent: &PathBuf) -> Vec<PathBuf> {
+    pub fn childern(parent: &Path) -> Vec<PathBuf> {
         let mut children = Vec::new();
 
         match fs::read_dir(parent) {
@@ -196,7 +203,7 @@ mod helper {
         children
     }
 
-    pub fn pattern_check(path: &PathBuf, patterns: &Vec<String>, kind: &Kind) -> Option<usize> {
+    pub fn pattern_check(path: &Path, patterns: &[String], kind: &Kind) -> Option<usize> {
         // check for folder
         if *kind == Kind::Folder && path.is_dir() {
             let name = path.file_name().unwrap().to_str().unwrap();
@@ -209,11 +216,11 @@ mod helper {
         }
     }
 
-    pub fn remove_item(path: &PathBuf) -> std::io::Result<()> {
+    pub fn remove_item(path: &Path) -> std::io::Result<()> {
         if path.is_file() {
-            fs::remove_file(&path)
+            fs::remove_file(path)
         } else {
-            fs::remove_dir_all(&path)
+            fs::remove_dir_all(path)
         }
     }
 }
@@ -225,7 +232,13 @@ mod tests {
     #[test]
     fn create_manager() {
         let manager = Manager::new();
-        assert_eq!(manager, Manager { configs: vec![] });
+        assert_eq!(
+            manager,
+            Manager {
+                configs: vec![],
+                dryrun: false
+            }
+        );
     }
 
     #[test]
@@ -251,7 +264,8 @@ mod tests {
                         String::from("debug"),
                         String::from("release"),
                     ]
-                }]
+                }],
+                dryrun: false
             }
         );
     }
@@ -282,7 +296,8 @@ mod tests {
                         String::from("debug"),
                         String::from("release"),
                     ]
-                }]
+                }],
+                dryrun: false
             }
         );
     }
