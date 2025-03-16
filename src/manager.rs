@@ -1,8 +1,7 @@
 use crate::{
     Config, Engine, Kind,
-    error::{Error as SelfError, ErrorKind as SelfErrorKind},
+    error::{AppError, AppErrorKind},
 };
-use clap::{CommandFactory, Error, error::ErrorKind};
 use serde::Deserialize;
 use std::{
     fs,
@@ -12,21 +11,21 @@ use std::{
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct Manager {
     configs: Vec<Config>,
+    dryrun: bool,
 }
 
 impl Manager {
     pub fn new() -> Manager {
-        Manager { configs: vec![] }
+        Manager {
+            configs: vec![],
+            dryrun: false,
+        }
     }
 
-    pub fn check_error(&self) -> crate::Result<()> {
-        Err(SelfError::new(
-            SelfErrorKind::Usage,
-            String::from("Invalid argument!!!"),
-        ))
-    }
+    pub fn validate(&mut self, engine: Engine) -> crate::Result<()> {
+        // dryrun
+        self.dryrun = engine.dryrun;
 
-    pub fn validate(&mut self, engine: Engine) -> Result<(), Error> {
         // config
         if let Some(mut path) = engine.config {
             // check relative or absolute path
@@ -38,9 +37,9 @@ impl Manager {
 
             // config file exists or not
             if !path.exists() {
-                return Err(Engine::command().error(
-                    ErrorKind::MissingRequiredArgument,
-                    "config file doesn't exists!",
+                return Err(AppError::new(
+                    AppErrorKind::Usage,
+                    "config file doesn't exists",
                 ));
             }
 
@@ -52,55 +51,60 @@ impl Manager {
                 .unwrap_or_default()
                 .to_lowercase();
             if extn != "json" {
-                return Err(Engine::command().error(
-                    ErrorKind::MissingRequiredArgument,
+                return Err(AppError::new(
+                    AppErrorKind::Usage,
                     "config file is not a JSON file, please provide a JSON file",
                 ));
             }
 
-            // execute cleanup
-            self.parse(path)
-                .map_err(|msg| Engine::command().error(ErrorKind::MissingRequiredArgument, msg))?;
+            // parse config file
+            self.parse(path)?;
             Ok(())
         } else {
-            let destination = engine.destination.ok_or(Engine::command().error(
-                ErrorKind::MissingRequiredArgument,
-                "Please provide destination!",
+            let destination = engine.destination.ok_or(AppError::new(
+                AppErrorKind::Usage,
+                "Please provide destination",
+            ))?;
+            let kind = engine
+                .kind
+                .ok_or(AppError::new(AppErrorKind::Usage, "Please provide kind"))?;
+
+            let patterns = engine.patterns.ok_or(AppError::new(
+                AppErrorKind::Usage,
+                "Please provide patterns",
             ))?;
 
             // validate destination path exists or not
             if !destination.exists() {
-                return Err(
-                    Engine::command().error(ErrorKind::InvalidValue, "config file doesn't exists!")
-                );
+                return Err(AppError::new(
+                    AppErrorKind::Usage,
+                    "destination doesn't exists",
+                ));
             }
 
             // make sure destination path is a folder, not file or symlink
             if !destination.is_dir() {
-                return Err(
-                    Engine::command().error(ErrorKind::InvalidValue, "config file doesn't exists!")
-                );
+                return Err(AppError::new(
+                    AppErrorKind::Usage,
+                    "destination is not a directory, please provide directory path as destination!",
+                ));
             }
 
-            let kind = engine.kind.ok_or(
-                Engine::command().error(ErrorKind::MissingRequiredArgument, "Please provide kind!"),
-            )?;
-            let patterns = engine.patterns.ok_or(Engine::command().error(
-                ErrorKind::MissingRequiredArgument,
-                "Please provide patterns!",
-            ))?;
-
-            // execute cleanup
-            self.format(destination, kind, patterns)
-                .map_err(|msg| Engine::command().error(ErrorKind::MissingRequiredArgument, msg))?;
+            // format user input
+            self.format(destination, kind, patterns)?;
             Ok(())
         }
     }
 
-    pub fn execute(&self) -> Result<(), String> {
+    pub fn execute(&self) -> crate::Result<()> {
         // loop over each config
         for config in &self.configs {
-            helper::remove(&config.destination, &config.kind, &config.patterns);
+            helper::remove(
+                &config.destination,
+                &config.kind,
+                &config.patterns,
+                self.dryrun,
+            );
         }
         Ok(())
     }
@@ -109,14 +113,9 @@ impl Manager {
         self.configs.push(config);
     }
 
-    fn parse(&mut self, path: PathBuf) -> Result<(), String> {
-        // validate the path
-        // if relative path then convert to absolute path
-        // serialize json file
-        // iterate over serialized data and add configs to manager
-
-        let json_data = fs::read_to_string(path).map_err(|err| err.to_string())?;
-        self.configs = serde_json::from_str(&json_data).map_err(|err| err.to_string())?;
+    fn parse(&mut self, path: PathBuf) -> crate::Result<()> {
+        let json_data = fs::read_to_string(path)?;
+        self.configs = serde_json::from_str(&json_data)?;
         Ok(())
     }
 
@@ -125,7 +124,7 @@ impl Manager {
         destination: PathBuf,
         kind: Kind,
         patterns: Vec<String>,
-    ) -> Result<(), String> {
+    ) -> crate::Result<()> {
         Ok(self.add(Config::new(destination, kind, patterns)))
     }
 }
@@ -133,7 +132,8 @@ impl Manager {
 mod helper {
     use super::*;
 
-    pub fn remove(destination: &PathBuf, kind: &Kind, patterns: &Vec<String>) {
+    // TODO: think remove need to return Result<...>?
+    pub fn remove(destination: &PathBuf, kind: &Kind, patterns: &Vec<String>, dryrun: bool) {
         if destination.exists() {
             // get child item of kind
             let children = self::childern(destination);
@@ -147,13 +147,16 @@ mod helper {
                     Some(_) => {
                         // remove child
                         println!("Removing {:?}...", child);
-
-                        // TODO: handle error by logging it on console/log file
-                        // self::remove_item(child).unwrap();
+                        if !dryrun {
+                            match self::remove_item(child) {
+                                Ok(_) => println!("Removed {:?}...", child),
+                                Err(e) => eprintln!("Error: {}", e.to_string()),
+                            }
+                        }
                     }
                     None => {
                         if child.is_dir() {
-                            self::remove(child, kind, patterns);
+                            self::remove(child, kind, patterns, dryrun);
                         }
                     }
                 }
@@ -161,6 +164,7 @@ mod helper {
         }
     }
 
+    // TODO: return Result<Vec<PathBuf>, AppError>
     pub fn childern(parent: &PathBuf) -> Vec<PathBuf> {
         let mut children = Vec::new();
 

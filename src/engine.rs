@@ -20,4 +20,8 @@ pub struct Engine {
     /// List of patterns to remove(comma separated value).
     #[arg(long, short, action = ArgAction::Append, value_delimiter = ',')]
     pub patterns: Option<Vec<String>>,
+
+    /// dry-run to check removable item list.
+    #[arg(long)]
+    pub dryrun: bool,
 }
