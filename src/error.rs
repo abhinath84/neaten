@@ -1,3 +1,6 @@
+// https://learning-rust.github.io/docs/custom-error-types/
+// https://www.youtube.com/watch?v=KrZ0nmpNVOw&t=1401s
+
 use clap::Error as ClapError;
 use serde_json::Error as SerdeJsonError;
 use std::{
@@ -132,6 +135,7 @@ impl Debug for AppError {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         // TODO: replace with message + debug info
         self.write(f)
+        // write!(f, "{{ file: {}, line: {} }}", file!(), line!()) // programmer-facing output
     }
 }
 
