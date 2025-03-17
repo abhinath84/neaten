@@ -18,7 +18,7 @@ impl Manager {
     pub fn new() -> Manager {
         Manager {
             configs: vec![],
-            dryrun: false,
+            dryrun: true,
         }
     }
 
@@ -105,6 +105,14 @@ impl Manager {
                 &config.patterns,
                 self.dryrun,
             );
+
+            // let mut item = helper::Remove {
+            //     destination: config.destination.clone(),
+            //     kind: config.kind.clone(),
+            //     patterns: config.patterns.clone(),
+            //     dryrun: self.dryrun,
+            // };
+            // helper::remove_as_mut(&mut item);
         }
         Ok(())
     }
@@ -138,6 +146,51 @@ impl Default for Manager {
 
 mod helper {
     use super::*;
+
+    pub struct Remove {
+        pub destination: PathBuf,
+        pub kind: Kind,
+        pub patterns: Vec<String>,
+        pub dryrun: bool,
+    }
+
+    impl AsMut<Remove> for Remove {
+        fn as_mut(&mut self) -> &mut Remove {
+            self
+        }
+    }
+
+    pub fn remove_as_mut<T: AsMut<Remove>>(item: &mut T) {
+        let item = item.as_mut();
+
+        if item.destination.exists() {
+            // get child item of kind
+            let children = self::childern(&item.destination);
+
+            // iterate over each child
+            for child in &children {
+                // if match, then remove
+                match self::pattern_check(child, &item.patterns, &item.kind) {
+                    Some(_) => {
+                        // remove child
+                        println!("Removing {:?}...", child);
+                        if !&item.as_mut().dryrun {
+                            match self::remove_item(child) {
+                                Ok(_) => println!("Removed {:?}...", child),
+                                Err(e) => eprintln!("Error: {}", e),
+                            }
+                        }
+                    }
+                    None => {
+                        if child.is_dir() {
+                            item.destination = child.to_path_buf();
+                            self::remove_as_mut(item);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // TODO: think remove need to return Result<...>?
     pub fn remove<P: AsRef<Path>>(destination: P, kind: &Kind, patterns: &[String], dryrun: bool) {
@@ -300,5 +353,23 @@ mod tests {
                 dryrun: false
             }
         );
+    }
+
+    #[test]
+    fn check_remove_as_mut() {
+        let mut item = helper::Remove {
+            destination: PathBuf::from("/Users/abhinath/productive/pool"),
+            kind: Kind::Folder,
+            patterns: vec![
+                String::from("packages"),
+                String::from("bin"),
+                String::from("obj"),
+                String::from("Debug"),
+                String::from("Release"),
+            ],
+            dryrun: true,
+        };
+        helper::remove_as_mut(&mut item);
+        assert!(true);
     }
 }
