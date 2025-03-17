@@ -174,7 +174,7 @@ mod helper {
                     Some(_) => {
                         // remove child
                         println!("Removing {:?}...", child);
-                        if !&item.as_mut().dryrun {
+                        if !&item.dryrun {
                             match self::remove_item(child) {
                                 Ok(_) => println!("Removed {:?}...", child),
                                 Err(e) => eprintln!("Error: {}", e),
