@@ -172,3 +172,13 @@ impl AppErrorKind {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new() {
+        assert!(true);
+    }
+}

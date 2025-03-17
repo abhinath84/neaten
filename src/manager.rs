@@ -18,7 +18,7 @@ impl Manager {
     pub fn new() -> Manager {
         Manager {
             configs: vec![],
-            dryrun: true,
+            dryrun: false,
         }
     }
 
@@ -356,6 +356,7 @@ mod tests {
     }
 
     #[test]
+    // #[should_panic]
     fn check_remove_as_mut() {
         let mut item = helper::Remove {
             destination: PathBuf::from("/Users/abhinath/productive/pool"),
@@ -370,6 +371,5 @@ mod tests {
             dryrun: true,
         };
         helper::remove_as_mut(&mut item);
-        assert!(true);
     }
 }
