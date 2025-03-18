@@ -183,6 +183,6 @@ mod tests {
             engine.config.unwrap(),
             PathBuf::from("/Users/abhinath/productive/pool/Project/cleanup/sample/config.json")
         );
-        assert_eq!(engine.dryrun, true);
+        assert!(engine.dryrun);
     }
 }

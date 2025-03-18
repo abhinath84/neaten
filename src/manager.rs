@@ -147,6 +147,7 @@ impl Default for Manager {
 mod helper {
     use super::*;
 
+    #[allow(dead_code)]
     pub struct Remove {
         pub destination: PathBuf,
         pub kind: Kind,
@@ -160,6 +161,7 @@ mod helper {
         }
     }
 
+    #[allow(dead_code)]
     pub fn remove_as_mut<T: AsMut<Remove>>(item: &mut T) {
         let item = item.as_mut();
 
