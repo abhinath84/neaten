@@ -8,7 +8,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  all:
     runs-on: ubuntu-latest
 
     strategy:
@@ -48,6 +48,7 @@ jobs:
         run: cargo test --verbose
 
   release:
+    needs: all
     runs-on: [ubuntu-latest, windows-latest, macos-latest]
 
     strategy:
