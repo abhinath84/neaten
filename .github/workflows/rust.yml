@@ -58,7 +58,7 @@ jobs:
 
   release:
     # needs: all
-    if: github.event_name == 'workflow_dispatch' and inputs.job_to_run == 'release'
+    if: github.event_name == 'workflow_dispatch' && inputs.job_to_run == 'release'
 
     strategy:
       matrix:
@@ -85,7 +85,7 @@ jobs:
         run: cargo build --release
 
   documentation:
-    if: github.event_name == 'workflow_dispatch' and inputs.job_to_run == 'documentation'
+    if: github.event_name == 'workflow_dispatch' && inputs.job_to_run == 'documentation'
 
     runs-on: ubuntu-latest
 
