@@ -3,12 +3,14 @@ name: CI/CD Pipeline
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   all:
+    if: github.event_name == 'push'
     strategy:
       matrix:
         toolchain: [stable, beta, nightly]
@@ -46,7 +48,8 @@ jobs:
         run: cargo test --verbose
 
   release:
-    needs: all
+    # needs: all
+    if: github.event_name == 'workflow_dispatch'
 
     strategy:
       matrix:
