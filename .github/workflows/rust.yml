@@ -105,7 +105,7 @@ jobs:
           cargo doc --no-deps --document-private-items
 
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rust-docs
           path: target/doc
