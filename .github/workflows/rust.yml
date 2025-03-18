@@ -49,14 +49,13 @@ jobs:
 
   release:
     needs: all
-    runs-on: [ubuntu-latest, macos-latest]
 
     strategy:
       matrix:
-        toolchain:
-          - stable
-          - beta
-          - nightly
+        toolchain: [stable, beta, nightly]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       # Checkout the repository
