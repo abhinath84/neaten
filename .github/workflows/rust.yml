@@ -25,7 +25,11 @@ jobs:
 
       # Install Rust toolchain
       - name: Install Rust
-        run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }} && rustup component add clippy
+        run: |
+          rustup update ${{ matrix.toolchain }}
+          && rustup default ${{ matrix.toolchain }}
+          && rustup component add clippy
+          && rustup component add rustfmt
 
       # Run Clippy (linting)
       - name: Run Clippy
