@@ -49,7 +49,7 @@ jobs:
 
   release:
     needs: all
-    runs-on: [macos-latest]
+    runs-on: [ubuntu-latest, macos-latest]
 
     strategy:
       matrix:
