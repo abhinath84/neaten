@@ -9,5 +9,3 @@ $ neaten --destination "absolute_or_relative_path" --type "folder_or_file" --pat
 $ neaten --destination "absolute_or_relative_path" --type "folder_or_file" --patterns dist --patterns node_modules
 $ neaten --config "absolute_or_relative_path"
 ```
-
-some changes

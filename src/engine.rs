@@ -21,7 +21,7 @@ pub struct Engine {
     #[arg(long, short, action = ArgAction::Append, value_delimiter = ',')]
     pub patterns: Option<Vec<String>>,
 
-    /// dry-run to check removable item list.
+    /// dry-run to check list of item to be removed.
     #[arg(long)]
     pub dryrun: bool,
 }
