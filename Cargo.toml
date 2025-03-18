@@ -1,12 +1,12 @@
 [package]
-name = "cleanup"
+name = "neaten"
 version = "0.1.0"
 authors = ["Abhishek Nath <abhi.nath84@outlook.com"]
 edition = "2024"
 description = "An application to cleanup resources from hard drive"
 license = "MIT"
-repository = "https://github.com/abhinath84/cleanup"
-documentation = "https://docs.rs/cleanup"
+repository = "https://github.com/abhinath84/neaten"
+documentation = "https://docs.rs/neaten"
 
 [dependencies]
 clap = { version = "4.5.32", features = ["derive"] }

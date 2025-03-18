@@ -1,5 +1,5 @@
 use clap::Parser;
-use cleanup::{Engine, Manager};
+use neaten::{Engine, Manager};
 
 fn main() {
     // setup command using clap

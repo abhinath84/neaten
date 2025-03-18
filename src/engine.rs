@@ -35,38 +35,38 @@ mod tests {
     #[test]
     fn config_long() {
         let args = vec![
-            "cleanup",
+            "neaten",
             "--config",
-            "/Users/abhinath/productive/pool/Project/cleanup/sample/config.json",
+            "/Users/abhinath/productive/pool/Project/neaten/sample/config.json",
         ];
         let result = Engine::try_parse_from(args);
         assert!(result.is_ok());
         let config = result.unwrap().config.unwrap();
         assert_eq!(
             config,
-            PathBuf::from("/Users/abhinath/productive/pool/Project/cleanup/sample/config.json")
+            PathBuf::from("/Users/abhinath/productive/pool/Project/neaten/sample/config.json")
         );
     }
 
     #[test]
     fn config_short() {
         let args = vec![
-            "cleanup",
+            "neaten",
             "-c",
-            "/Users/abhinath/productive/pool/Project/cleanup/sample/config.json",
+            "/Users/abhinath/productive/pool/Project/neaten/sample/config.json",
         ];
         let result = Engine::try_parse_from(args);
         assert!(result.is_ok());
         let config = result.unwrap().config.unwrap();
         assert_eq!(
             config,
-            PathBuf::from("/Users/abhinath/productive/pool/Project/cleanup/sample/config.json")
+            PathBuf::from("/Users/abhinath/productive/pool/Project/neaten/sample/config.json")
         );
     }
 
     #[test]
     fn missing_options() {
-        let args = vec!["cleanup"];
+        let args = vec!["neaten"];
         let result = Engine::try_parse_from(args);
         assert!(result.is_ok());
         let engine = result.unwrap();
@@ -76,9 +76,9 @@ mod tests {
     #[test]
     fn destination_and_others_long() {
         let args = vec![
-            "cleanup",
+            "neaten",
             "--destination",
-            "/Users/abhinath/productive/pool/Project/cleanup/sample/config.json",
+            "/Users/abhinath/productive/pool/Project/neaten/sample/config.json",
             "--kind",
             "folder",
             "--patterns",
@@ -89,7 +89,7 @@ mod tests {
         let engine = result.unwrap();
         assert_eq!(
             engine.destination.unwrap(),
-            PathBuf::from("/Users/abhinath/productive/pool/Project/cleanup/sample/config.json")
+            PathBuf::from("/Users/abhinath/productive/pool/Project/neaten/sample/config.json")
         );
         assert_eq!(engine.kind.unwrap(), super::super::Kind::Folder);
         assert_eq!(
@@ -101,9 +101,9 @@ mod tests {
     #[test]
     fn destination_and_others_short() {
         let args = vec![
-            "cleanup",
+            "neaten",
             "-d",
-            "/Users/abhinath/productive/pool/Project/cleanup/sample/config.json",
+            "/Users/abhinath/productive/pool/Project/neaten/sample/config.json",
             "-k",
             "folder",
             "-p",
@@ -114,7 +114,7 @@ mod tests {
         let engine = result.unwrap();
         assert_eq!(
             engine.destination.unwrap(),
-            PathBuf::from("/Users/abhinath/productive/pool/Project/cleanup/sample/config.json")
+            PathBuf::from("/Users/abhinath/productive/pool/Project/neaten/sample/config.json")
         );
         assert_eq!(engine.kind.unwrap(), crate::Kind::Folder);
         assert_eq!(
@@ -126,7 +126,7 @@ mod tests {
     #[test]
     fn missing_destination() {
         let args = vec![
-            "cleanup",
+            "neaten",
             "--kind",
             "folder",
             "--patterns",
@@ -141,9 +141,9 @@ mod tests {
     #[test]
     fn missing_kind() {
         let args = vec![
-            "cleanup",
+            "neaten",
             "--destination",
-            "/Users/abhinath/productive/pool/Project/cleanup/sample/config.json",
+            "/Users/abhinath/productive/pool/Project/neaten/sample/config.json",
             "--patterns",
             "dist,node_modules",
         ];
@@ -156,9 +156,9 @@ mod tests {
     #[test]
     fn missing_patterns() {
         let args = vec![
-            "cleanup",
+            "neaten",
             "--destination",
-            "/Users/abhinath/productive/pool/Project/cleanup/sample/config.json",
+            "/Users/abhinath/productive/pool/Project/neaten/sample/config.json",
             "--kind",
             "folder",
         ];
@@ -171,9 +171,9 @@ mod tests {
     #[test]
     fn dryrun() {
         let args = vec![
-            "cleanup",
+            "neaten",
             "--config",
-            "/Users/abhinath/productive/pool/Project/cleanup/sample/config.json",
+            "/Users/abhinath/productive/pool/Project/neaten/sample/config.json",
             "--dryrun",
         ];
         let result = Engine::try_parse_from(args);
@@ -181,7 +181,7 @@ mod tests {
         let engine = result.unwrap();
         assert_eq!(
             engine.config.unwrap(),
-            PathBuf::from("/Users/abhinath/productive/pool/Project/cleanup/sample/config.json")
+            PathBuf::from("/Users/abhinath/productive/pool/Project/neaten/sample/config.json")
         );
         assert!(engine.dryrun);
     }
