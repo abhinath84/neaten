@@ -9,7 +9,7 @@ env:
 
 jobs:
   build:
-    runs-on: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -46,3 +46,30 @@ jobs:
       # Run tests
       - name: Run tests
         run: cargo test --verbose
+
+  release:
+    runs-on: [ubuntu-latest, windows-latest, macos-latest]
+
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+          - beta
+          - nightly
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Install Rust toolchain
+      - name: Install Rust
+        run: >
+          rustup update ${{ matrix.toolchain }} &&
+          rustup default ${{ matrix.toolchain }} &&
+          rustup component add clippy &&
+          rustup component add rustfmt
+
+      # build in release mode
+      - name: Build
+        run: cargo build --release
