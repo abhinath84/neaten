@@ -2,7 +2,7 @@
 
 An application to cleanup resources from hard drive.
 
-## example
+## Example
 
 ```sh
 $ neaten --destination "absolute_or_relative_path" --type "folder_or_file" --patterns "dist,node_modules"
