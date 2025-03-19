@@ -7,18 +7,18 @@ on:
     # Inputs the workflow accepts.
     inputs:
       version:
-        description: 'Release level (major / minor / patch / alpha / beta / rc)'
+        description: "Release level (major / minor / patch / alpha / beta / rc)"
         required: true
         type: choice
-        options: 
-        - patch
-        - minor
-        - major
-        - alpha
-        - beta
-        - rc
+        options:
+          - patch
+          - minor
+          - major
+          - alpha
+          - beta
+          - rc
       dry-run:
-        description: 'Dry run (no changes will be made)'
+        description: "Dry run (no changes will be made)"
         required: false
         type: boolean
         default: false
@@ -36,7 +36,7 @@ jobs:
         with:
           fetch-depth: 0
           ssh-key: ${{ secrets.DEPLOY_KEY }}
-          
+
       # Setup Rust
       - name: Setup Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -44,7 +44,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      
+
       # Install cargo-release
       - name: Install cargo-release
         uses: actions-rs/install@v0.1
@@ -58,7 +58,7 @@ jobs:
         run: |
           git config user.name 'Abhishek Nath'
           git config user.email 'abhi.nath@outlook.com'
-          
+
       # Setup crates.io token
       - name: Setup crates.io token
         run: |
@@ -66,16 +66,129 @@ jobs:
           echo "[registry]" > ~/.cargo/credentials
           echo "token = \"${{ secrets.CARGO_REGISTRY_TOKEN }}\"" >> ~/.cargo/credentials
           chmod 600 ~/.cargo/credentials
-          
+
       # Dry run if requested
       - name: Cargo Release Dry Run
         if: ${{ inputs.dry-run }}
         run: cargo release ${{ github.event.inputs.version }} --no-confirm
-        
+
       # Execute release if not dry-run
       - name: Cargo Release Execute
         if: ${{ !inputs.dry-run }}
         run: cargo release ${{ github.event.inputs.version }} --execute --no-confirm --push
+
+  # build:
+  #   name: Build for ${{ matrix.os }}
+  #   runs-on: ${{ matrix.os }}
+  #   needs: publish
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - os: ubuntu-latest
+  #           artifact_name: neaten
+  #           asset_name: neaten-linux-amd64
+  #         - os: windows-latest
+  #           artifact_name: neaten.exe
+  #           asset_name: neaten-windows-amd64.exe
+  #         - os: macos-latest
+  #           artifact_name: neaten
+  #           asset_name: neaten-macos-amd64
+
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+
+  #   - name: Setup Rust toolchain
+  #     uses: actions-rs/toolchain@v1
+  #     with:
+  #       profile: minimal
+  #       toolchain: stable
+  #       override: true
+
+  #   - name: Build release binary
+  #     uses: actions-rs/cargo@v1
+  #     with:
+  #       command: build
+  #       args: --release
+
+  #   - name: Rename binary (Windows)
+  #     if: matrix.os == 'windows-latest'
+  #     run: |
+  #       cd target/release
+  #       copy neaten.exe ..\..\${{ matrix.asset_name }}
+  #     shell: cmd
+
+  #   - name: Rename binary (Unix-like)
+  #     if: matrix.os != 'windows-latest'
+  #     run: |
+  #       cd target/release
+  #       cp neaten ../../${{ matrix.asset_name }}
+
+  #   - name: Upload artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: ${{ matrix.asset_name }}
+  #       path: ${{ matrix.asset_name }}
+  #       retention-days: 1
+
+  # release:
+  #   name: Create GitHub Release
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Get version from tag
+  #       id: get_version
+  #       run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+  #     - name: Create Release
+  #       id: create_release
+  #       uses: actions/create-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ github.ref }}
+  #         release_name: Release ${{ steps.get_version.outputs.VERSION }}
+  #         draft: false
+  #         prerelease: false
+  #         generate_release_notes: true
+
+  #     - name: Download all artifacts
+  #       uses: actions/download-artifact@v4
+
+  #     - name: Upload Linux Asset
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
+  #         asset_path: ./neaten-linux-amd64/neaten-linux-amd64
+  #         asset_name: neaten-linux-amd64
+  #         asset_content_type: application/octet-stream
+
+  #     - name: Upload Windows Asset
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
+  #         asset_path: ./neaten-windows-amd64.exe/neaten-windows-amd64.exe
+  #         asset_name: neaten-windows-amd64.exe
+  #         asset_content_type: application/octet-stream
+
+  #     - name: Upload macOS Asset
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
+  #         asset_path: ./neaten-macos-amd64/neaten-macos-amd64
+  #         asset_name: neaten-macos-amd64
+  #         asset_content_type: application/octet-stream
 
   build:
     name: Build for ${{ matrix.os }}
@@ -86,50 +199,61 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: neaten
-            asset_name: neaten-linux-amd64
+            platform_name: linux-amd64
           - os: windows-latest
             artifact_name: neaten.exe
-            asset_name: neaten-windows-amd64.exe
+            platform_name: windows-amd64
           - os: macos-latest
             artifact_name: neaten
-            asset_name: neaten-macos-amd64
+            platform_name: macos-amd64
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
-        
-    - name: Build release binary
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --release
-      
-    - name: Rename binary (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        cd target/release
-        copy neaten.exe ..\..\${{ matrix.asset_name }}
-      shell: cmd
-    
-    - name: Rename binary (Unix-like)
-      if: matrix.os != 'windows-latest'
-      run: |
-        cd target/release
-        cp neaten ../../${{ matrix.asset_name }}
-      
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.asset_name }}
-        path: ${{ matrix.asset_name }}
-        retention-days: 1
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Build release binary
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - name: Create platform directory and copy binary (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          mkdir ${{ matrix.platform_name }}
+          cd target/release
+          copy neaten.exe ..\..\${{ matrix.platform_name }}\neaten.exe
+        shell: cmd
+
+      - name: Create platform directory and copy binary (Unix-like)
+        if: matrix.os != 'windows-latest'
+        run: |
+          mkdir ${{ matrix.platform_name }}
+          cd target/release
+          cp neaten ../../${{ matrix.platform_name }}/neaten
+
+      - name: Create ZIP archive
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            7z a ${{ matrix.platform_name }}.zip ${{ matrix.platform_name }}
+          else
+            zip -r ${{ matrix.platform_name }}.zip ${{ matrix.platform_name }}
+          fi
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform_name }}.zip
+          path: ${{ matrix.platform_name }}.zip
+          retention-days: 1
 
   release:
     name: Create GitHub Release
@@ -144,48 +268,18 @@ jobs:
       - name: Get version from tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-      
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-      
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
-        
-      - name: Upload Linux Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # List directories to debug
+      - name: List directories
+        run: find . -type f -name "*.zip" | sort
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./neaten-linux-amd64/neaten-linux-amd64
-          asset_name: neaten-linux-amd64
-          asset_content_type: application/octet-stream
-      
-      - name: Upload Windows Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./neaten-windows-amd64.exe/neaten-windows-amd64.exe
-          asset_name: neaten-windows-amd64.exe
-          asset_content_type: application/octet-stream
-      
-      - name: Upload macOS Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./neaten-macos-amd64/neaten-macos-amd64
-          asset_name: neaten-macos-amd64
-          asset_content_type: application/octet-stream
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          files: |
+            */*.zip
+          generate_release_notes: true
