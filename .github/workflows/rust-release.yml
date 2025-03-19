@@ -1,0 +1,78 @@
+name: Rust Release
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      version:
+        description: 'Release level (major / minor / patch / alpha / beta / rc)'
+        required: true
+        type: choice
+        options: 
+        - patch
+        - minor
+        - major
+        - alpha
+        - beta
+        - rc
+      dry-run:
+        description: 'Dry run (no changes will be made)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  release:
+    name: Create and Publish Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Check out the repo with full history and deploy key
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          
+      # Setup Rust
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      
+      # Install cargo-release
+      - name: Install cargo-release
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-release
+          version: latest
+          use-tool-cache: true
+
+      # Configure Git
+      - name: Configure Git
+        run: |
+          git config user.name 'Abhishek Nath'
+          git config user.email 'abhi.nath@outlook.com'
+          
+      # Setup crates.io token
+      - name: Setup crates.io token
+        run: |
+          mkdir -p ~/.cargo
+          echo "[registry]" > ~/.cargo/credentials
+          echo "token = \"${{ secrets.CARGO_REGISTRY_TOKEN }}\"" >> ~/.cargo/credentials
+          chmod 600 ~/.cargo/credentials
+          
+      # Dry run if requested
+      - name: Cargo Release Dry Run
+        if: ${{ inputs.dry-run }}
+        run: cargo release ${{ github.event.inputs.version }} --no-confirm
+        
+      # Execute release if not dry-run
+      - name: Cargo Release Execute
+        if: ${{ !inputs.dry-run }}
+        run: cargo release ${{ github.event.inputs.version }} --execute --no-confirm --push
