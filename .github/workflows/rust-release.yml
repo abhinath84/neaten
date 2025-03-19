@@ -29,6 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      new_tag: ${{ steps.get_new_tag.outputs.tag }}
     steps:
       # Check out the repo with full history and deploy key
       - name: Checkout code
@@ -76,6 +78,18 @@ jobs:
       - name: Cargo Release Execute
         if: ${{ !inputs.dry-run }}
         run: cargo release ${{ github.event.inputs.version }} --execute --no-confirm --push
+
+      # Get the new tag created by cargo-release
+      - name: Get new tag
+        id: get_new_tag
+        if: ${{ !inputs.dry-run }}
+        run: |
+          # Wait a moment for tag to be available
+          sleep 2
+          # Get the latest tag name
+          TAG=$(git describe --tags --abbrev=0)
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "Created new tag: ${TAG}"
 
   build:
     name: Build for ${{ matrix.os }}
@@ -156,17 +170,18 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history and tags
 
-      - name: Get latest tag
+      # Use the tag created in the publish job
+      - name: Set tag from publish job
         id: get_tag
         run: |
-          # Get the latest tag name without refs/tags/ prefix
-          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          TAG="${{ needs.publish.outputs.new_tag }}"
           echo "TAG=${TAG}" >> $GITHUB_OUTPUT
 
           if [ -z "$TAG" ]; then
-            echo "No tags found. Cannot create a release."
+            echo "No tag was created by the publish job. Cannot create a release."
             exit 1
           fi
+          echo "Using tag: ${TAG}"
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
