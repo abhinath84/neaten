@@ -73,14 +73,14 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         cd target/release
-        copy your-app.exe ..\..\${{ matrix.asset_name }}
+        copy neaten.exe ..\..\${{ matrix.asset_name }}
       shell: cmd
     
     - name: Rename binary (Unix-like)
       if: matrix.os != 'windows-latest'
       run: |
         cd target/release
-        cp your-app ../../${{ matrix.asset_name }}
+        cp neaten ../../${{ matrix.asset_name }}
       
     - name: Upload artifact
       uses: actions/upload-artifact@v4
@@ -124,8 +124,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./your-app-linux-amd64/your-app-linux-amd64
-          asset_name: your-app-linux-amd64
+          asset_path: ./neaten-linux-amd64/neaten-linux-amd64
+          asset_name: neaten-linux-amd64
           asset_content_type: application/octet-stream
       
       - name: Upload Windows Asset
@@ -134,8 +134,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./your-app-windows-amd64.exe/your-app-windows-amd64.exe
-          asset_name: your-app-windows-amd64.exe
+          asset_path: ./neaten-windows-amd64.exe/neaten-windows-amd64.exe
+          asset_name: neaten-windows-amd64.exe
           asset_content_type: application/octet-stream
       
       - name: Upload macOS Asset
@@ -144,6 +144,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./your-app-macos-amd64/your-app-macos-amd64
-          asset_name: your-app-macos-amd64
+          asset_path: ./neaten-macos-amd64/neaten-macos-amd64
+          asset_name: neaten-macos-amd64
           asset_content_type: application/octet-stream
