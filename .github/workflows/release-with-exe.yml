@@ -34,7 +34,7 @@ jobs:
   #     - name: publish
   #       env:
   #         CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo publish
+  #      run: cargo publish
 
   build:
     name: Build for ${{ matrix.os }}
