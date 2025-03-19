@@ -116,7 +116,7 @@ jobs:
           generate_release_notes: true
       
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         
       - name: Upload Linux Asset
         uses: actions/upload-release-asset@v1
