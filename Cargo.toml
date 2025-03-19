@@ -1,6 +1,6 @@
 [package]
 name = "neaten"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Abhishek Nath <abhi.nath84@outlook.com"]
 edition = "2024"
 description = "An application to cleanup resources from hard drive"
