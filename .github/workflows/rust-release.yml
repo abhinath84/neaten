@@ -77,119 +77,6 @@ jobs:
         if: ${{ !inputs.dry-run }}
         run: cargo release ${{ github.event.inputs.version }} --execute --no-confirm --push
 
-  # build:
-  #   name: Build for ${{ matrix.os }}
-  #   runs-on: ${{ matrix.os }}
-  #   needs: publish
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - os: ubuntu-latest
-  #           artifact_name: neaten
-  #           asset_name: neaten-linux-amd64
-  #         - os: windows-latest
-  #           artifact_name: neaten.exe
-  #           asset_name: neaten-windows-amd64.exe
-  #         - os: macos-latest
-  #           artifact_name: neaten
-  #           asset_name: neaten-macos-amd64
-
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v4
-
-  #   - name: Setup Rust toolchain
-  #     uses: actions-rs/toolchain@v1
-  #     with:
-  #       profile: minimal
-  #       toolchain: stable
-  #       override: true
-
-  #   - name: Build release binary
-  #     uses: actions-rs/cargo@v1
-  #     with:
-  #       command: build
-  #       args: --release
-
-  #   - name: Rename binary (Windows)
-  #     if: matrix.os == 'windows-latest'
-  #     run: |
-  #       cd target/release
-  #       copy neaten.exe ..\..\${{ matrix.asset_name }}
-  #     shell: cmd
-
-  #   - name: Rename binary (Unix-like)
-  #     if: matrix.os != 'windows-latest'
-  #     run: |
-  #       cd target/release
-  #       cp neaten ../../${{ matrix.asset_name }}
-
-  #   - name: Upload artifact
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: ${{ matrix.asset_name }}
-  #       path: ${{ matrix.asset_name }}
-  #       retention-days: 1
-
-  # release:
-  #   name: Create GitHub Release
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   permissions:
-  #     contents: write
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: Get version from tag
-  #       id: get_version
-  #       run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-  #     - name: Create Release
-  #       id: create_release
-  #       uses: actions/create-release@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         tag_name: ${{ github.ref }}
-  #         release_name: Release ${{ steps.get_version.outputs.VERSION }}
-  #         draft: false
-  #         prerelease: false
-  #         generate_release_notes: true
-
-  #     - name: Download all artifacts
-  #       uses: actions/download-artifact@v4
-
-  #     - name: Upload Linux Asset
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #         asset_path: ./neaten-linux-amd64/neaten-linux-amd64
-  #         asset_name: neaten-linux-amd64
-  #         asset_content_type: application/octet-stream
-
-  #     - name: Upload Windows Asset
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #         asset_path: ./neaten-windows-amd64.exe/neaten-windows-amd64.exe
-  #         asset_name: neaten-windows-amd64.exe
-  #         asset_content_type: application/octet-stream
-
-  #     - name: Upload macOS Asset
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #         asset_path: ./neaten-macos-amd64/neaten-macos-amd64
-  #         asset_name: neaten-macos-amd64
-  #         asset_content_type: application/octet-stream
-
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -210,6 +97,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history and tags
 
       - name: Setup Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -264,10 +153,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history and tags
 
-      - name: Get version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          # Get the latest tag name without refs/tags/ prefix
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "TAG=${TAG}" >> $GITHUB_OUTPUT
+
+          if [ -z "$TAG" ]; then
+            echo "No tags found. Cannot create a release."
+            exit 1
+          fi
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -279,8 +178,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          name: Release ${{ steps.get_version.outputs.VERSION }}
+          tag_name: ${{ steps.get_tag.outputs.TAG }}
+          name: Release ${{ steps.get_tag.outputs.TAG }}
           files: |
             */*.zip
           generate_release_notes: true
