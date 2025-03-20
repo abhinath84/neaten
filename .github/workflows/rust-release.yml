@@ -41,11 +41,10 @@ jobs:
 
       # Setup Rust
       - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        run: |
+          rustup update stable
+          rustup default stable
+          rustup component add rustfmt clippy
 
       # Install cargo-release using cargo directly
       - name: Install cargo-release
@@ -109,14 +108,14 @@ jobs:
           fetch-depth: 0 # Fetch all history and tags
           ref: ${{ needs.publish.outputs.new_version }} # Checkout the new tag
 
-      # Use native GitHub Actions for Rust setup instead of actions-rs
+      # Use native GitHub Actions for Rust setup
       - name: Setup Rust toolchain
         run: |
           rustup update stable
           rustup default stable
           rustup component add rustfmt clippy
 
-      # Replace actions-rs/cargo with direct cargo command
+      # Use direct cargo command
       - name: Build release binary
         run: cargo build --release
 
