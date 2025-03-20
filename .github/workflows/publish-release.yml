@@ -1,4 +1,4 @@
-name: Rust Release
+name: Publish and Release
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -22,6 +22,11 @@ on:
         required: false
         type: boolean
         default: false
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
 
 jobs:
   publish:
