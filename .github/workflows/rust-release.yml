@@ -169,11 +169,21 @@ jobs:
       - name: List directories
         run: find . -type f -name "*.zip" | sort
 
+      # Install GitHub CLI
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
+
+      # Create GitHub Release using GitHub CLI
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.publish.outputs.new_version }}
-          name: Release ${{ needs.publish.outputs.new_version }}
-          files: |
-            */*.zip
-          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create release with the new version tag
+          gh release create ${{ needs.publish.outputs.new_version }} --title "Release ${{ needs.publish.outputs.new_version }}" --generate-notes
+
+          # Upload all zip files to the release
+          find . -type f -name "*.zip" | while read file; do
+            gh release upload ${{ needs.publish.outputs.new_version }} "$file"
+          done
