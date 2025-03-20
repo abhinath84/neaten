@@ -82,7 +82,7 @@ jobs:
         run: |
           # Get the latest tag which would be the one just created
           NEW_TAG=$(git describe --tags --abbrev=0)
-          echo "version=${NEW_TAG}" >> $GITHUB_OUTPUT
+          echo "version=${NEW_TAG}" >> "${GITHUB_OUTPUT}"
           echo "Created new version: ${NEW_TAG}"
 
   build:
