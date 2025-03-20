@@ -21,7 +21,7 @@ pub struct Engine {
     #[arg(long, short, action = ArgAction::Append, value_delimiter = ',')]
     pub patterns: Option<Vec<String>>,
 
-    /// List of items to be excluded to remove(comma separated value).
+    /// List of items to be excluded from remove(comma separated value).
     #[arg(long, short, action = ArgAction::Append, value_delimiter = ',')]
     pub exclude: Option<Vec<String>>,
 
