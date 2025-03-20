@@ -15,14 +15,21 @@ pub struct Config {
     pub destination: PathBuf,
     pub kind: Kind,
     pub patterns: Vec<String>,
+    pub exclude: Option<Vec<String>>,
 }
 
 impl Config {
-    pub fn new(destination: PathBuf, kind: Kind, patterns: Vec<String>) -> Config {
+    pub fn new(
+        destination: PathBuf,
+        kind: Kind,
+        patterns: Vec<String>,
+        exclude: Option<Vec<String>>,
+    ) -> Config {
         Config {
             destination,
             kind,
             patterns,
+            exclude,
         }
     }
 }
@@ -47,6 +54,7 @@ mod tests {
                 String::from("debug"),
                 String::from("release"),
             ],
+            None,
         );
 
         assert_eq!(
@@ -59,6 +67,7 @@ mod tests {
                     String::from("debug"),
                     String::from("release"),
                 ],
+                exclude: None,
             }
         );
     }
@@ -74,6 +83,7 @@ mod tests {
                 String::from("debug"),
                 String::from("release"),
             ],
+            None,
         );
         assert_eq!(folder_config.kind, Kind::Folder);
 
@@ -86,6 +96,7 @@ mod tests {
                 String::from("debug"),
                 String::from("release"),
             ],
+            None,
         );
         assert_eq!(file_config.kind, Kind::File);
     }
@@ -95,26 +106,28 @@ mod tests {
         let destination = PathBuf::from("/pool/node");
         let patterns = vec![String::from("dist"), String::from("node_modules")];
 
-        let config = Config::new(destination, Kind::Folder, patterns);
+        let config = Config::new(destination, Kind::Folder, patterns, None);
         assert_eq!(
             config,
             Config {
                 destination: PathBuf::from("/pool/node"),
                 kind: Kind::Folder,
-                patterns: vec![String::from("dist"), String::from("node_modules")]
+                patterns: vec![String::from("dist"), String::from("node_modules")],
+                exclude: None,
             }
         );
 
         {
             let inner_destination = PathBuf::from("/pool/node");
             let inner_patterns = vec![String::from("dist"), String::from("node_modules")];
-            let inner_config = Config::new(inner_destination, Kind::Folder, inner_patterns);
+            let inner_config = Config::new(inner_destination, Kind::Folder, inner_patterns, None);
             assert_eq!(
                 inner_config,
                 Config {
                     destination: PathBuf::from("/pool/node"),
                     kind: Kind::Folder,
-                    patterns: vec![String::from("dist"), String::from("node_modules")]
+                    patterns: vec![String::from("dist"), String::from("node_modules")],
+                    exclude: None,
                 }
             );
         }

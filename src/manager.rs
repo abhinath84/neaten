@@ -91,7 +91,7 @@ impl Manager {
             }
 
             // format user input
-            self.format(destination, kind, patterns)?;
+            self.format(destination, kind, patterns, engine.exclude)?;
             Ok(())
         }
     }
@@ -103,6 +103,7 @@ impl Manager {
                 &config.destination,
                 &config.kind,
                 &config.patterns,
+                &config.exclude.clone().unwrap_or_default(),
                 self.dryrun,
             );
 
@@ -132,8 +133,9 @@ impl Manager {
         destination: PathBuf,
         kind: Kind,
         patterns: Vec<String>,
+        exclude: Option<Vec<String>>,
     ) -> crate::Result<()> {
-        self.add(Config::new(destination, kind, patterns));
+        self.add(Config::new(destination, kind, patterns, exclude));
         Ok(())
     }
 }
@@ -152,6 +154,7 @@ mod helper {
         pub destination: PathBuf,
         pub kind: Kind,
         pub patterns: Vec<String>,
+        pub exclude: Vec<String>,
         pub dryrun: bool,
     }
 
@@ -167,7 +170,7 @@ mod helper {
 
         if item.destination.exists() {
             // get child item of kind
-            let children = self::childern(&item.destination);
+            let children = self::childern(&item.destination, &item.exclude);
 
             // iterate over each child
             for child in &children {
@@ -195,12 +198,18 @@ mod helper {
     }
 
     // TODO: think remove need to return Result<...>?
-    pub fn remove<P: AsRef<Path>>(destination: P, kind: &Kind, patterns: &[String], dryrun: bool) {
+    pub fn remove<P: AsRef<Path>>(
+        destination: P,
+        kind: &Kind,
+        patterns: &[String],
+        exclude: &[String],
+        dryrun: bool,
+    ) {
         // pub fn remove(destination: &Path, kind: &Kind, patterns: &[String], dryrun: bool) {
         let destination = destination.as_ref();
         if destination.exists() {
             // get child item of kind
-            let children = self::childern(destination);
+            let children = self::childern(destination, exclude);
 
             // iterate over each child
             for child in &children {
@@ -208,17 +217,17 @@ mod helper {
                 match self::pattern_check(child, patterns, kind) {
                     Some(_) => {
                         // remove child
-                        println!("Removing {:?}...", child);
+                        println!("\u{1b}[91mRemoving\u{1b}[0m {:?}...", child);
                         if !dryrun {
                             match self::remove_item(child) {
-                                Ok(_) => println!("Removed {:?}...", child),
+                                Ok(_) => println!("\u{1b}[31mRemoved\u{1b}[0m {:?}...", child),
                                 Err(e) => eprintln!("Error: {}", e),
                             }
                         }
                     }
                     None => {
                         if child.is_dir() {
-                            self::remove(child, kind, patterns, dryrun);
+                            self::remove(child, kind, patterns, exclude, dryrun);
                         }
                     }
                 }
@@ -227,7 +236,7 @@ mod helper {
     }
 
     // TODO: return Result<Vec<PathBuf>, AppError>
-    pub fn childern(parent: &Path) -> Vec<PathBuf> {
+    pub fn childern(parent: &Path, exclude: &[String]) -> Vec<PathBuf> {
         let mut children = Vec::new();
 
         match fs::read_dir(parent) {
@@ -235,7 +244,23 @@ mod helper {
                 for entry in entries {
                     match entry {
                         Ok(entry) => {
-                            children.push(entry.path());
+                            // don't add path that exists in exclude list
+                            let path = entry.path();
+                            let name = path
+                                .file_name()
+                                .unwrap_or_default()
+                                .to_str()
+                                .unwrap_or_default();
+                            match self::find(name, exclude) {
+                                Some(_) => {
+                                    // println!("index: {:?}", index);
+                                    // println!("path: {:?}", name);
+                                    // println!("exclude: {:?}", exclude);
+
+                                    println!("\u{1b}[33mExclude\u{1b}[0m {:?}...", path)
+                                }
+                                None => children.push(path),
+                            }
 
                             // check child is matching with patterns or not
                             // if *kind == Kind::Folder && entry.file_type().unwrap().is_dir() {
@@ -258,14 +283,25 @@ mod helper {
         children
     }
 
+    fn find(item: &str, list: &[String]) -> Option<usize> {
+        list.iter()
+            .position(|n| n.to_lowercase() == item.to_lowercase())
+    }
+
     pub fn pattern_check(path: &Path, patterns: &[String], kind: &Kind) -> Option<usize> {
         // check for folder
         if *kind == Kind::Folder && path.is_dir() {
             let name = path.file_name().unwrap().to_str().unwrap();
-            patterns.iter().position(|n| n == name)
+            self::find(name, patterns)
+            // patterns
+            //     .iter()
+            //     .position(|n| n.to_lowercase() == name.to_lowercase())
         } else if *kind == Kind::File && path.is_file() {
             let extn = path.extension().unwrap().to_str().unwrap();
-            patterns.iter().position(|n| n == extn)
+            self::find(extn, patterns)
+            // patterns
+            //     .iter()
+            //     .position(|n| n.to_lowercase() == extn.to_lowercase())
         } else {
             None
         }
@@ -307,6 +343,7 @@ mod tests {
                 String::from("debug"),
                 String::from("release"),
             ],
+            None,
         ));
         assert_eq!(
             manager,
@@ -318,7 +355,8 @@ mod tests {
                         String::from("build"),
                         String::from("debug"),
                         String::from("release"),
-                    ]
+                    ],
+                    exclude: None,
                 }],
                 dryrun: false
             }
@@ -337,6 +375,7 @@ mod tests {
                     String::from("debug"),
                     String::from("release"),
                 ],
+                None,
             )
             .unwrap();
 
@@ -350,7 +389,8 @@ mod tests {
                         String::from("build"),
                         String::from("debug"),
                         String::from("release"),
-                    ]
+                    ],
+                    exclude: None,
                 }],
                 dryrun: false
             }
@@ -370,6 +410,7 @@ mod tests {
                 String::from("Debug"),
                 String::from("Release"),
             ],
+            exclude: vec![],
             dryrun: true,
         };
         helper::remove_as_mut(&mut item);

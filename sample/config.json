@@ -2,12 +2,14 @@
   {
     "destination": "/Users/abhinath/productive/pool/C#",
     "kind": "folder",
-    "patterns": ["packages", "bin", "obj", "Debug", "Release"]
+    "patterns": ["packages", "bin", "obj", "Debug", "Release"],
+    "exclude": ["some_folder", "another_folder"]
   },
   {
     "destination": "/Users/abhinath/productive/pool/C++",
     "kind": "folder",
-    "patterns": ["build", "Debug", "Release"]
+    "patterns": ["build", "Debug", "Release"],
+    "exclude": ["STLport", "STLport-master", "STLport-VS2012", "STLport-VS15"]
   },
   {
     "destination": "/Users/abhinath/productive/pool/C++_CLI",
