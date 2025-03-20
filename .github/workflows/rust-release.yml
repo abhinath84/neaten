@@ -109,18 +109,16 @@ jobs:
           fetch-depth: 0 # Fetch all history and tags
           ref: ${{ needs.publish.outputs.new_version }} # Checkout the new tag
 
+      # Use native GitHub Actions for Rust setup instead of actions-rs
       - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        run: |
+          rustup update stable
+          rustup default stable
+          rustup component add rustfmt clippy
 
+      # Replace actions-rs/cargo with direct cargo command
       - name: Build release binary
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
+        run: cargo build --release
 
       - name: Create platform directory and copy binary (Windows)
         if: matrix.os == 'windows-latest'
