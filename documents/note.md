@@ -10,3 +10,6 @@
 - [create installer for rust application project](https://www.google.com/search?q=create+installer+for+rust+application+project&client=firefox-b-d&sca_esv=570cf0d5ed487250&ei=DK_bZ_TDFpfG4-EP3uDI2AI&ved=0ahUKEwj0-Zne_ZeMAxUX4zgGHV4wEisQ4dUDCBI&uact=5&oq=create+installer+for+rust+application+project&gs_lp=Egxnd3Mtd2l6LXNlcnAiLWNyZWF0ZSBpbnN0YWxsZXIgZm9yIHJ1c3QgYXBwbGljYXRpb24gcHJvamVjdDIFEAAY7wUyCBAAGIAEGKIEMggQABiABBiiBDIIEAAYgAQYogRI9qIBUJ8OWJWhAXABeACQAQCYAfoBoAH8N6oBBjAuNDUuMbgBA8gBAPgBAZgCKaACvzHCAgoQABiwAxjWBBhHwgINEAAYgAQYsAMYQxiKBcICChAAGIAEGEMYigXCAhEQLhiABBixAxjRAxiDARjHAcICCBAAGIAEGLEDwgIQEC4YgAQY0QMYQxjHARiKBcICDhAAGIAEGLEDGIMBGIoFwgIFEAAYgATCAgsQABiABBixAxiKBcICCxAAGIAEGLEDGIMBwgIGEAAYFhgewgILEAAYgAQYhgMYigXCAgUQIRigAcICBRAhGJ8FwgIHECEYoAEYCsICBhAhGBUYDZgDAIgGAZAGCZIHBDEuNDCgB87pAbIHBDAuNDC4B7Ux&sclient=gws-wiz-serp)
 - [dist](https://opensource.axo.dev/cargo-dist/)
   - [Quickstart](https://opensource.axo.dev/cargo-dist/book/quickstart/index.html)
+- [node-osc / .github / workflows](https://github.com/MylesBorins/node-osc/tree/main/.github/workflows)
+- [How to Publish Rust Package/Crates Docs to GitHub Pages](https://www.youtube.com/watch?v=QpEvnpqJ8iM)
+- [Command-line apps](https://www.rust-lang.org/what/cli)
