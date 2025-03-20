@@ -5,8 +5,11 @@ authors = ["Abhishek Nath <abhi.nath84@outlook.com"]
 edition = "2024"
 description = "An application to cleanup resources from hard drive"
 license = "MIT"
+homepage = "https://github.com/abhinath84/neaten"
 repository = "https://github.com/abhinath84/neaten"
 documentation = "https://docs.rs/neaten"
+keywords = ["cli", "cleanup", "hard-disk", "resources"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.5.32", features = ["derive"] }
