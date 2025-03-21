@@ -19,17 +19,17 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(
-        destination: PathBuf,
-        kind: Kind,
-        patterns: Vec<String>,
-        exclude: Option<Vec<String>>,
-    ) -> Config {
+    pub fn new<P, I, S>(destination: P, kind: Kind, patterns: I, exclude: Option<I>) -> Config
+    where
+        P: Into<PathBuf>,
+        S: Into<String>,
+        I: IntoIterator<Item = S>,
+    {
         Config {
-            destination,
+            destination: destination.into(),
             kind,
-            patterns,
-            exclude,
+            patterns: patterns.into_iter().map(Into::into).collect(),
+            exclude: exclude.map(|e| e.into_iter().map(Into::into).collect()),
         }
     }
 }
@@ -47,14 +47,15 @@ mod tests {
     #[test]
     fn create_config() {
         let config = Config::new(
-            PathBuf::from("/Users/abhinath/productive/pool/Project"),
+            "/Users/abhinath/productive/pool/Project",
             Kind::Folder,
-            vec![
-                String::from("build"),
-                String::from("debug"),
-                String::from("release"),
-            ],
+            vec!["build", "debug", "release"],
             None,
+        );
+
+        assert_eq!(
+            config.destination,
+            PathBuf::from("/Users/abhinath/productive/pool/Project")
         );
 
         assert_eq!(
@@ -76,26 +77,18 @@ mod tests {
     fn check_kind() {
         // Folder
         let folder_config = Config::new(
-            PathBuf::from("/Users/abhinath/productive/pool/Project"),
+            "/Users/abhinath/productive/pool/Project",
             Kind::Folder,
-            vec![
-                String::from("build"),
-                String::from("debug"),
-                String::from("release"),
-            ],
+            vec!["build", "debug", "release"],
             None,
         );
         assert_eq!(folder_config.kind, Kind::Folder);
 
         // Folder
         let file_config = Config::new(
-            PathBuf::from("/Users/abhinath/productive/pool/Project"),
+            "/Users/abhinath/productive/pool/Project",
             Kind::File,
-            vec![
-                String::from("build"),
-                String::from("debug"),
-                String::from("release"),
-            ],
+            vec!["build", "debug", "release"],
             None,
         );
         assert_eq!(file_config.kind, Kind::File);
@@ -103,8 +96,8 @@ mod tests {
 
     #[test]
     fn check_lifetime() {
-        let destination = PathBuf::from("/pool/node");
-        let patterns = vec![String::from("dist"), String::from("node_modules")];
+        let destination = "/pool/node";
+        let patterns = vec!["dist", "node_modules"];
 
         let config = Config::new(destination, Kind::Folder, patterns, None);
         assert_eq!(
@@ -118,8 +111,8 @@ mod tests {
         );
 
         {
-            let inner_destination = PathBuf::from("/pool/node");
-            let inner_patterns = vec![String::from("dist"), String::from("node_modules")];
+            let inner_destination = "/pool/node";
+            let inner_patterns = vec!["dist", "node_modules"];
             let inner_config = Config::new(inner_destination, Kind::Folder, inner_patterns, None);
             assert_eq!(
                 inner_config,

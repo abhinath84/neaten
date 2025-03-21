@@ -30,7 +30,7 @@ impl Manager {
         if let Some(mut path) = engine.config {
             // check relative or absolute path
             path = if path.is_relative() {
-                path::absolute(path).unwrap()
+                path::absolute(path)?
             } else {
                 path
             };
@@ -122,20 +122,20 @@ impl Manager {
         self.configs.push(config);
     }
 
-    fn parse(&mut self, path: PathBuf) -> crate::Result<()> {
+    fn parse<T: AsRef<Path>>(&mut self, path: T) -> crate::Result<()> {
         let json_data = fs::read_to_string(path)?;
         self.configs = serde_json::from_str(&json_data)?;
         Ok(())
     }
 
-    fn format(
+    fn format<T: Into<PathBuf>>(
         &mut self,
-        destination: PathBuf,
+        destination: T,
         kind: Kind,
         patterns: Vec<String>,
         exclude: Option<Vec<String>>,
     ) -> crate::Result<()> {
-        self.add(Config::new(destination, kind, patterns, exclude));
+        self.add(Config::new(destination.into(), kind, patterns, exclude));
         Ok(())
     }
 }
@@ -236,7 +236,7 @@ mod helper {
     }
 
     // TODO: return Result<Vec<PathBuf>, AppError>
-    pub fn childern(parent: &Path, exclude: &[String]) -> Vec<PathBuf> {
+    pub fn childern<P: AsRef<Path>>(parent: P, exclude: &[String]) -> Vec<PathBuf> {
         let mut children = Vec::new();
 
         match fs::read_dir(parent) {
@@ -257,7 +257,7 @@ mod helper {
                                     // println!("path: {:?}", name);
                                     // println!("exclude: {:?}", exclude);
 
-                                    println!("\u{1b}[33mExclude\u{1b}[0m {:?}...", path)
+                                    println!("\u{1b}[33mExclude\u{1b}[0m {:?}...", path);
                                 }
                                 None => children.push(path),
                             }
@@ -283,21 +283,35 @@ mod helper {
         children
     }
 
-    fn find(item: &str, list: &[String]) -> Option<usize> {
+    fn find<T: AsRef<str>>(item: T, list: &[String]) -> Option<usize> {
+        let item = item.as_ref();
         list.iter()
             .position(|n| n.to_lowercase() == item.to_lowercase())
     }
 
-    pub fn pattern_check(path: &Path, patterns: &[String], kind: &Kind) -> Option<usize> {
+    pub fn pattern_check<P: AsRef<Path>>(
+        path: P,
+        patterns: &[String],
+        kind: &Kind,
+    ) -> Option<usize> {
+        let path = path.as_ref();
         // check for folder
         if *kind == Kind::Folder && path.is_dir() {
-            let name = path.file_name().unwrap().to_str().unwrap();
+            let name = path
+                .file_name()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or_default();
             self::find(name, patterns)
             // patterns
             //     .iter()
             //     .position(|n| n.to_lowercase() == name.to_lowercase())
         } else if *kind == Kind::File && path.is_file() {
-            let extn = path.extension().unwrap().to_str().unwrap();
+            let extn = path
+                .extension()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or_default();
             self::find(extn, patterns)
             // patterns
             //     .iter()
@@ -307,8 +321,8 @@ mod helper {
         }
     }
 
-    pub fn remove_item(path: &Path) -> std::io::Result<()> {
-        if path.is_file() {
+    pub fn remove_item<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
+        if path.as_ref().is_file() {
             fs::remove_file(path)
         } else {
             fs::remove_dir_all(path)
@@ -336,13 +350,9 @@ mod tests {
     fn add_config() {
         let mut manager = Manager::new();
         manager.add(Config::new(
-            PathBuf::from("/Users/abhinath/productive/pool/Project"),
+            "/Users/abhinath/productive/pool/Project",
             Kind::Folder,
-            vec![
-                String::from("build"),
-                String::from("debug"),
-                String::from("release"),
-            ],
+            vec!["build", "debug", "release"],
             None,
         ));
         assert_eq!(
@@ -368,7 +378,7 @@ mod tests {
         let mut manager = Manager::new();
         manager
             .format(
-                PathBuf::from("/Users/abhinath/productive/pool/Project"),
+                "/Users/abhinath/productive/pool/Project",
                 Kind::Folder,
                 vec![
                     String::from("build"),
