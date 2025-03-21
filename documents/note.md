@@ -18,4 +18,7 @@
 - [AUTOMATED Release Notes - GitHub Checkout](https://www.youtube.com/watch?v=88FWrfHCIqo)
   - [node-osc / .github / workflows](https://github.com/MylesBorins/node-osc/tree/main/.github/workflows)
   - [Automatically generated release notes](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)
+  - [github workflow job to create release and release notes](https://www.google.com/search?sca_esv=752abbb89351eef7&q=github+workflow+job+to+create+release+and+release+notes&udm=7&fbs=ABzOT_CWdhQLP1FcmU5B0fn3xuWp6IcynRBrzjy_vjxR0KoDMp_4ut2Z3jppK72fzdIpWsBpYmR8fwcVczrRGmP-Hf4k8E3HhH0FkewPslVYtPbS7kB2xAs5YSOHZO5EqeKGc27ctsnkY8o1WDvq3BhRnlA7rzqWGR33axn-OqWfIhOwK1Kb3J3LBFKzWCQCrNZfs_3zsSkbiPRJHomba_raX-mjf1bWjg&sa=X&ved=2ahUKEwip_vq5xpWMAxUldPUHHZwhGoMQtKgLegQIGRAB&biw=1705&bih=992&dpr=1)
 - [Command-line apps](https://www.rust-lang.org/what/cli)
+- [Tip 1: Build your first GitHub Actions workflow](https://www.youtube.com/watch?v=47zYGHwXPmE&list=PLtvmFy4Ed_DL4Vd2uup0ZT6o_HFSaF-yW)
+  - [Tip 9: Creating a GitHub release in a GitHub Actions workflow](https://www.youtube.com/watch?v=_ueJ3LrRqPU)
