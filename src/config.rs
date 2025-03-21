@@ -9,8 +9,14 @@ pub enum Kind {
     File,
 }
 
+impl Default for Kind {
+    fn default() -> Self {
+        Self::Folder
+    }
+}
+
 // TODO: try to replace `String` with `&str` (if it's better)
-#[derive(Deserialize, Debug, PartialEq)]
+#[derive(Deserialize, Default, Debug, PartialEq)]
 pub struct Config {
     pub destination: PathBuf,
     pub kind: Kind,
