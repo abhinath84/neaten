@@ -2,7 +2,7 @@ use super::Kind;
 use clap::{ArgAction, Parser};
 use std::path::PathBuf;
 
-#[derive(Debug, Parser)]
+#[derive(Default, Debug, Parser)]
 #[command(version, about, long_about = None)]
 pub struct Engine {
     /// config file path(either absolute or relative path).
