@@ -1,5 +1,17 @@
 # Introduction
 
+## Todo
+
+- [ ] Documents
+  - [ ] Commands
+  - [ ] Update README.md
+  - [ ] Contribution
+  - [ ] Api
+- [ ] Support multi-threading/concurrency
+- [ ] Refactor
+  - [ ] Restructure: lib & app
+  - [ ] Reusable components
+
 ## References
 
 - [Setting up effective CI/CD for Rust projects - a short primer](https://www.shuttle.dev/blog/2025/01/23/setup-rust-ci-cd)
