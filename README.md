@@ -57,7 +57,11 @@ Root object of the config file must be an **array**. Here is the format of each 
 
 ```
 
-> `exclude` is an optional field.
+> `exclude` is an optional field. Command ignore any sub-file or sub-folder those are matching with items mentioned in `exclude`.
+>
+> For an example, suppose we provide `/usr/sample/rust` as destination, it's having `["proj1", "proj2", "proj3", "proj4", "proj5"]` sub-folders. And also provided `["target"]` as patterns & `["proj2", "proj5"]` as exclude.
+>
+> Command will remove _target_ folder from `["proj1", "proj3", "proj4"]` and their sub-folders and ignore `["proj2", "proj5"]` as we mention them as excluded item.
 
 Refer [Config file Sample](#config-file-sample) section for more about config file.
 
@@ -73,16 +77,24 @@ _-c, --config_ \<path>_ \
 &emsp;Config file with path(absolute or relative path). Config file must be in `json` format.
 
 _-d, --destination \<path>_ \
-&emsp;destination directory path(absolute or relative path).
+&emsp;Destination directory path(absolute or relative path).
 
 _-k, --kind \<enum>_ \
-&emsp;what kind of item wants to remove. It's an enum type with value: _folder_ or _file_.
+&emsp;What kind of item wants to remove. It's an enum type with value: _folder_ or _file_.
 
 _-p, --patterns \<string>_ \
-&emsp;List of patterns to remove(comma separated value). Pass a _comma(,)_ separated string or call multiple time.
+&emsp;List of patterns to remove. Pass a _comma(,)_ separated string or call multiple time.
+
+Currently removing of folder support full folder name, no _regular expression_ support is there. You must provide full folder name as `patterns` value.
+
+Currently removing of files support full extension name, no _regular expression_ support is there. You must provide full extension name as `patterns` value.
 
 _-e, --exclude \<string>_ \
-&emsp;List of items to be excluded from remove(comma separated value). Pass a _comma(,)_ separated string or call multiple time.
+&emsp;List of items to be excluded from remove. Pass a _comma(,)_ separated string or call multiple time.
+
+To exclude any sub-folder no _regular expression_ support is there. You must provide full folder name as `exclude` value.
+
+To exclude any file, you must provide full file name as `exclude` value. No _regular expression_ support is there.
 
 _--dryrun \<enum>_ \
 &emsp;dry-run mode to check list of item to be removed.

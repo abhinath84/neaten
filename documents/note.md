@@ -4,7 +4,7 @@
 
 - [ ] Documents
   - [X] Commands
-    - [ ] Give example with path & directory structure, how command will exclude intermediate folder/file
+    - [x] Give example with path & directory structure, how command will exclude intermediate folder/file
     - [x] Remove `command.md` (redundant)
   - [ ] Update README.md
   - [ ] Contribution
