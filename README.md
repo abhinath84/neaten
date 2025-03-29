@@ -138,7 +138,7 @@ $ neaten --destination "/usr/sample/rust" --kind "folder" --patterns "target" --
 $ neaten -d "/usr/sample/rust" -k "folder" -p "target" -e "obj" -e "dist"
 ```
 
-- Dry-run.
+- Dry-run with `destionation`, `kind` & `patterns` arguments.
 
 ```sh
 $ neaten --destination "/usr/sample/rust" --kind "folder" --patterns "target" --exclude "obj" --dryrun
@@ -146,6 +146,13 @@ $ neaten -d "/usr/sample/rust" -k "folder" -p "target" -e "obj" --dryrun
 
 $ neaten --destination "/usr/sample/rust" --kind "folder" --patterns "target" --dryrun
 $ neaten -d "/usr/sample/rust" -k "folder" -p "target" --dryrun
+```
+
+- Dry-run with `config` arguments.
+
+```sh
+$ neaten --config "/usr/sample/config.json" --dryrun
+$ neaten -c "/usr/sample/config.json" --dryrun
 ```
 
 ## Config file Sample
