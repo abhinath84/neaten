@@ -5,11 +5,11 @@ use std::path::PathBuf;
 #[derive(Default, Debug, Parser)]
 #[command(version, about, long_about = None)]
 pub struct Engine {
-    /// config file path(either absolute or relative path).
+    /// config file (JSON format) with path(absolute or relative path).
     #[arg(long, short)]
     pub config: Option<PathBuf>,
 
-    /// destination directory path(either absolute or relative path).
+    /// destination directory path(absolute or relative path).
     #[arg(long, short)]
     pub destination: Option<PathBuf>,
 
@@ -25,7 +25,7 @@ pub struct Engine {
     #[arg(long, short, action = ArgAction::Append, value_delimiter = ',')]
     pub exclude: Option<Vec<String>>,
 
-    /// dry-run to check list of item to be removed.
+    /// dry-run mode to check list of item to be removed.
     #[arg(long)]
     pub dryrun: bool,
 }

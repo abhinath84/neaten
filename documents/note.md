@@ -3,7 +3,9 @@
 ## Todo
 
 - [ ] Documents
-  - [ ] Commands
+  - [X] Commands
+    - [ ] Give example with path & directory structure, how command will exclude intermediate folder/file
+    - [ ] Remove `command.md` (redundant)
   - [ ] Update README.md
   - [ ] Contribution
   - [ ] Api
@@ -11,6 +13,8 @@
 - [ ] Refactor
   - [ ] Restructure: lib & app
   - [ ] Reusable components
+- [ ] *Check does it remove hidded folder/file or not!
+  - [ ] If not, implement it
 
 ## References
 
