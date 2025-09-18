@@ -13,8 +13,21 @@
 - [ ] Refactor
   - [ ] Restructure: lib & app
   - [ ] Reusable components
-- [ ] *Check does it remove hidded folder/file or not!
+- [ ] * Check does it remove hidded folder/file or not!
   - [ ] If not, implement it
+
+### 15-09-2025
+
+- [ ] Add support to remove files with name(including extension)
+  - [ ] Rules:
+    - [ ] In case of remove "based on extension", pattern should start with `.` and followed by extension name. Example: `[".exe", ".txt", ".jpg"]`.
+    - [ ] In case of remove "file with name(including extension)", pattern should provide full file name with or without extension. Example: `["file1.txt", "file2"]`.
+    - [ ] In case of remove "file for `RegExp`", pattern should have `RegExp`. Example: `["*.log", "log.*", "\sabc\n.\\w+", "\\d{4}-\\d{2}-\\d{2}"]`.
+    - [ ] In case of `["abc.txt", ".txt"]`, neaten will preference `.txt`.
+    - [ ] In case of `["\shgh\n12.txt", ".txt"]`, neaten will preference `.txt`.
+    - [ ] *** ***Preferences***: 1. extension, 2. RegExp, 3. name
+- [ ] Support `RegExp` in `patterns`.
+  - [] Conseider everything as `Regexp` in `patterns`. If user provided `non-Regexp`, convert it to `Regexp`.
 
 ## References
 
